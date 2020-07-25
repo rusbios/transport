@@ -1,0 +1,23 @@
+{
+  "name": "rusbios/transport",
+  "description": "Управление домашним сервером",
+  "type": "library",
+  "minimum-stability": "stable",
+  "license": "Apache-2.0",
+  "version": "0.0.1",
+  "authors": [
+    {
+      "name": "Ryssia",
+      "email": "info@rusbios.ru"
+    }
+  ],
+  "require": {
+    "ext-json": "*",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Transport\\": "src/"
+    }
+  }
+}
