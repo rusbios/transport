@@ -1,11 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Transport;
+namespace RB\Transport;
 
 use Exception;
-use Transport\Requsts\HttpRequest;
-use Transport\Responses\HttpResponse;
+use RB\Transport\Requests\HttpRequest;
+use RB\Transport\Responses\HttpResponse;
 
 class HttpClient
 {
@@ -121,7 +121,7 @@ class HttpClient
             }
         }
 
-        $curl = curl_init($url);
+        $curl = curl_init($request->getUrl());
 
         switch ($request->getMethod()) {
             case HttpRequest::METHOD_POST:
@@ -137,7 +137,7 @@ class HttpClient
                 break;
 
             case HttpRequest::METHOD_GET:
-                $data = http_build_query($request->getData(), '', '&');
+                $data = http_build_query($request->getData() ?? [], '', '&');
                 break;
         }
 

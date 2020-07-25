@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Transport\Responses;
+namespace RB\Transport\Responses;
 
 class HttpResponse
 {

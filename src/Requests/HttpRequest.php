@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Transport\Requsts;
+namespace RB\Transport\Requests;
 
 class HttpRequest
 {
@@ -25,7 +25,7 @@ class HttpRequest
         self::CONFIG_SSL_VERIFY_PEER => false,
     ];
 
-    protected string $method = self::METHOD_GET;
+    protected string $method;
     protected string $url;
     protected array $data;
     protected array $files;
@@ -38,7 +38,7 @@ class HttpRequest
      */
     public function getData(): ?array
     {
-        return $this->data;
+        return $this->data ?? null;
     }
 
     /**
@@ -46,7 +46,7 @@ class HttpRequest
      */
     public function getHeaders(): ?array
     {
-        return $this->headers;
+        return $this->headers ?? null;
     }
 
     /**
@@ -54,7 +54,7 @@ class HttpRequest
      */
     public function getMethod(): string
     {
-        return $this->method;
+        return $this->method ?? self::METHOD_GET;
     }
 
     /**
@@ -62,7 +62,7 @@ class HttpRequest
      */
     public function getUrl(): ?string
     {
-        return $this->url;
+        return $this->url ?? null;
     }
 
     /**
