@@ -1,10 +1,10 @@
 {
   "name": "rusbios/transport",
-  "description": "Управление домашним сервером",
+  "description": "Custom transport by rusbios",
   "type": "library",
   "minimum-stability": "stable",
   "license": "Apache-2.0",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "authors": [
     {
       "name": "Ryssia",

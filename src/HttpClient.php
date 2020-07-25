@@ -109,7 +109,7 @@ class HttpClient
     {
         $data = $request->getData();
 
-        foreach ($this->configs as $name => $value) {
+        foreach ($this->configs ?? [] as $name => $value) {
             switch ($name) {
                 case HttpRequest::CONFIG_TIMEOUT:
                     $request->setTimeout($value);
