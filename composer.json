@@ -4,7 +4,7 @@
   "type": "library",
   "minimum-stability": "stable",
   "license": "Apache-2.0",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "authors": [
     {
       "name": "Ryssia",
@@ -13,7 +13,8 @@
   ],
   "require": {
     "ext-json": "*",
-    "ext-curl": "*"
+    "ext-curl": "*",
+    "ext-http": "*"
   },
   "autoload": {
     "psr-4": {

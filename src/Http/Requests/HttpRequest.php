@@ -1,7 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace RB\Transport\Requests;
+namespace RB\Transport\Http\Requests;
+
+use Exception;
+use HttpRequestMethodException;
 
 class HttpRequest
 {
@@ -122,12 +125,12 @@ class HttpRequest
     /**
      * @param string $method
      * @return $this
-     * @throws \HttpRequestMethodException
+     * @throws HttpRequestMethodException
      */
     public function setMethod(string $method): self
     {
         if (!in_array($method, self::METHODS)) {
-            throw new \HttpRequestMethodException('Method not fount');
+            throw new HttpRequestMethodException('Method not fount');
         }
 
         $this->method = $method;
@@ -150,12 +153,12 @@ class HttpRequest
      * @param string $path
      * @param string $fieldsName
      * @return self
-     * @throws \Exception
+     * @throws Exception
      */
     public function addFile(string $path, string $fieldsName = 'files'): self
     {
         if (!file_exists($path)) {
-            throw new \Exception('File not fount');
+            throw new Exception('File not fount');
         }
 
         $this->files[$fieldsName][] = $path;
@@ -167,12 +170,12 @@ class HttpRequest
      * @param string $path
      * @param string $fieldName
      * @return self
-     * @throws \Exception
+     * @throws Exception
      */
     public function putFile(string $path, string $fieldName = 'file'): self
     {
         if (!file_exists($path)) {
-            throw new \Exception('File not fount');
+            throw new Exception('File not fount');
         }
 
         $this->file[$fieldName] = $path;

@@ -3,9 +3,11 @@ declare(strict_types = 1);
 
 namespace RB\Transport;
 
-use Exception;
-use RB\Transport\Requests\HttpRequest;
-use RB\Transport\Responses\HttpResponse;
+use HttpInvalidParamException;
+use HttpRequestException;
+use HttpRequestMethodException;
+use RB\Transport\Http\Requests\HttpRequest;
+use RB\Transport\Http\Responses\HttpResponse;
 
 class HttpClient
 {
@@ -14,7 +16,7 @@ class HttpClient
     /**
      * @param array $configs
      * @return $this
-     * @throws \HttpInvalidParamException
+     * @throws HttpInvalidParamException
      */
     public function setConfigs(array $configs): self
     {
@@ -29,12 +31,12 @@ class HttpClient
      * @param string $name
      * @param string|int|bool|float $value
      * @return $this
-     * @throws \HttpInvalidParamException
+     * @throws HttpInvalidParamException
      */
     public function setConfig(string $name, $value): self
     {
         if (empty(HttpRequest::CONFIGS[$name])) {
-            throw new \HttpInvalidParamException('Config not fount');
+            throw new HttpInvalidParamException('Config not fount');
         }
 
         $this->configs[$name] = $value;
@@ -45,12 +47,12 @@ class HttpClient
     /**
      * @param string $name
      * @return string|int|bool|float
-     * @throws \HttpInvalidParamException
+     * @throws HttpInvalidParamException
      */
     public function getConfig(string $name)
     {
-        if (!isset(self::CONFIGS[$name])) {
-            throw new \HttpInvalidParamException('Config not fount');
+        if (!isset(HttpRequest::CONFIGS[$name])) {
+            throw new HttpInvalidParamException('Config not fount');
         }
 
         return $this->configs[$name] ?? HttpRequest::CONFIGS[$name];
@@ -59,7 +61,7 @@ class HttpClient
     /**
      * @param HttpRequest $request
      * @return HttpResponse
-     * @throws \HttpRequestException
+     * @throws HttpRequestException|HttpRequestMethodException
      */
     public function get(HttpRequest $request): HttpResponse
     {
@@ -70,7 +72,7 @@ class HttpClient
     /**
      * @param HttpRequest $request
      * @return HttpResponse
-     * @throws \HttpRequestException
+     * @throws HttpRequestException|HttpRequestMethodException
      */
     public function post(HttpRequest $request): HttpResponse
     {
@@ -81,7 +83,7 @@ class HttpClient
     /**
      * @param HttpRequest $request
      * @return HttpResponse
-     * @throws \HttpRequestException
+     * @throws HttpRequestException|HttpRequestMethodException
      */
     public function put(HttpRequest $request): HttpResponse
     {
@@ -92,7 +94,7 @@ class HttpClient
     /**
      * @param HttpRequest $request
      * @return HttpResponse
-     * @throws \HttpRequestException
+     * @throws HttpRequestException|HttpRequestMethodException
      */
     public function delete(HttpRequest $request): HttpResponse
     {
@@ -103,7 +105,7 @@ class HttpClient
     /**
      * @param HttpRequest $request
      * @return HttpResponse
-     * @throws \HttpRequestException
+     * @throws HttpRequestException
      */
     public function make(HttpRequest $request): HttpResponse
     {
@@ -133,7 +135,7 @@ class HttpClient
                 break;
 
             case HttpRequest::METHOD_DELETE:
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, self::METHOD_DELETE);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, HttpRequest::METHOD_DELETE);
                 break;
 
             case HttpRequest::METHOD_GET:
@@ -166,7 +168,7 @@ class HttpClient
         $out = curl_exec($curl);
 
         if ($out === false) {
-            throw new \HttpRequestException('cURL Error: ' . curl_error($curl));
+            throw new HttpRequestException('cURL Error: ' . curl_error($curl));
         }
 
         $response = new HttpResponse(
