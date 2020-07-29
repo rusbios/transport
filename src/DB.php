@@ -10,6 +10,14 @@ class DB
     private static Client $connect;
 
     /**
+     * @param Client $client
+     */
+    public static function setConnect(Client $client): void
+    {
+        self::$connect = $client;
+    }
+
+    /**
      * @param string $table
      * @param array $columns
      * @param array $where
@@ -72,7 +80,16 @@ class DB
     {
         foreach ($values as $key => $value) {
             $keys[] = self::wrap($key);
-            $datas[] = "'" . trim($value) . "'";
+
+            if (is_int($value)) {
+                $datas[] = $value;
+            } elseif (is_float($value)) {
+                $datas[] = "'$value'";
+            } elseif (is_null($value)) {
+                $datas[] = 'null';
+            } else {
+                $datas[] = "'" . trim($value) . "'";
+            }
         }
         $sql = sprintf(
             'insert into %s (%s) values (%s);',
@@ -94,7 +111,15 @@ class DB
     {
         $datas = [];
         foreach ($values as $key => $value) {
-            $datas[] = self::wrap($key) . " = '" . trim($value) . "'";
+            if (is_int($value)) {
+                $datas[] = self::wrap($key) . " = $value";
+            } elseif (is_float($value)) {
+                $datas[] = self::wrap($key) . " = '$value'";
+            } elseif (is_null($value)) {
+                $datas[] = self::wrap($key) . ' = null';
+            } else {
+                $datas[] = self::wrap($key) . " = '" . trim($value) . "'";
+            }
         }
 
         $sql = 'update ' . self::wrap($table) . ' set ' . implode(', ', $datas);
@@ -112,10 +137,10 @@ class DB
     /**
      * @param string $key
      * @param string|bool|int|float|null $value
-     * @param string|null $operator
+     * @param string $operator
      * @return string
      */
-    private static function where(string $key, $value = null, string $operator = null): string
+    private static function where(string $key, $value = null, string $operator = '='): string
     {
         switch (trim($operator)) {
             case '=':
@@ -123,7 +148,7 @@ class DB
                 break;
 
             case '!=' || '<>':
-                $operator = $value ? 'is null' : '=';
+                $operator = $value ? '!=' : 'is not null' ;
                 break;
 
             case '>':
@@ -143,7 +168,7 @@ class DB
                 break;
 
             default:
-                $operator = $value ? 'is null' : '=';
+                $operator = $value ? '=' : 'is null';
         }
 
         if (!$value) {

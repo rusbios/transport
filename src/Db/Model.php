@@ -25,6 +25,10 @@ abstract class Model
     public function __construct(array $data = [])
     {
         $this->data = $data;
+        if (!empty($this->data[$this->primaryKey])) {
+            unset($this->data[$this->primaryKey]);
+        }
+        $this->oldData = $data;
     }
 
     /**
@@ -60,7 +64,7 @@ abstract class Model
     {
         $models = [];
 
-        foreach (DB::select(static::getTable(), null, $where, $orders, $offset, $limit) as $data) {
+        foreach (DB::select(static::getTable(), [], $where, $orders, $offset, $limit) as $data) {
             $models[] = new static($data);
         }
 
@@ -91,7 +95,8 @@ abstract class Model
      */
     public static function getTable(): string
     {
-        $table = get_class(static::class);
+        $class = explode('\\',static::class);
+        $table = end($class);
         if (substr($table, -5) == 'Model') {
             $table = substr($table, 0, -5);
         }
@@ -104,6 +109,10 @@ abstract class Model
      */
     public function __get(string $name)
     {
+        if ($name == $this->primaryKey) {
+            return $this->getId();
+        }
+
         $value = $this->data[$name] ?? null;
         $function = 'get'.Util::caseSnakeToCamel($name).'Attribute';
         if (function_exists($function)) {
@@ -119,12 +128,36 @@ abstract class Model
      */
     public function __set(string $name, $value = null): self
     {
+        if ($name == $this->primaryKey) {
+            $this->setId((int)$value);
+            return $this;
+        }
+
         $function = 'set'.Util::caseSnakeToCamel($name).'Attribute';
         if (function_exists($function)) {
             $this->$function($value);
         } else {
             $this->data[$name] = $value;
         }
+
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->oldData[$this->primaryKey] ?? null;
+    }
+
+    /**
+     * @param int $id
+     * @return $this
+     */
+    public function setId(int $id): self
+    {
+        $this->oldData[$this->primaryKey] = $id;
         return $this;
     }
 
@@ -137,7 +170,7 @@ abstract class Model
         $attributes += $this->data;
 
         foreach ($attributes as $key => $value) {
-            if ($value != $this->oldData[$key]) {
+            if (empty($this->oldData[$key]) || $value != $this->oldData[$key]) {
                 $diff[$key] = $value;
             }
         }
@@ -145,11 +178,13 @@ abstract class Model
         if (isset($diff)) {
 
             if ($this->timestamps) {
-                $this->data[self::UPDATED_TS] = time();
+                $this->data[self::UPDATED_TS] = $diff[self::UPDATED_TS] = (new \DateTime())->format('Y-m-d H:i:s');
             }
 
             if (empty($this->oldData[$this->primaryKey])) {
-                $this->data[self::CREATED_TS] = time();
+                if ($this->timestamps) {
+                    $this->data[self::CREATED_TS] = $diff[self::CREATED_TS] = $this->data[self::UPDATED_TS];
+                }
                 $this->oldData[$this->primaryKey] = DB::insert(self::getTable(), $diff);
             } else {
                 DB::update(self::getTable(), $diff, [$this->primaryKey => $this->oldData[$this->primaryKey]]);

@@ -33,7 +33,7 @@ class Client
      */
     public function query(string $sql): array
     {
-        return $this->connect->query($sql)->fetchAll();
+        return $this->connect->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
