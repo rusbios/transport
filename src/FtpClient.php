@@ -9,7 +9,7 @@ class FtpClient
 {
     private string $login;
     private string $password;
-    private resource $connect;
+    private $connect;
 
     /**
      * FtpClient constructor.
@@ -33,7 +33,8 @@ class FtpClient
         $this->login = $login;
         $this->password = $password;
         $this->connect = $ssl ? ftp_ssl_connect($host, $port, $timeout) : ftp_connect($host, $port, $timeout);
-        if ($this->connect !== false && ftp_login($this->connect, $login, $password)) {
+
+        if ($this->connect === false || !ftp_login($this->connect, $login, $password)) {
             throw new ConnectException('Failed to connect to server');
         }
     }
